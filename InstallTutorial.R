@@ -27,9 +27,18 @@ if(.Platform$OS.type=="unix"){
   
 download.file("https://zenodo.org/record/158955/files/rdp_train_set_14.fa.gz", "rdp_train_set_14.fa.gz", method="curl", quiet=F)
 download.file("https://zenodo.org/record/158955/files/rdp_species_assignment_14.fa.gz", "rdp_species_assignment_14.fa.gz", method="curl", quiet=F)
-download.file("https://raw.githubusercontent.com/jbisanz/BMS270_BMI219/master/Tutorial_metadata.txt","Tutorial_metadata.txt", method="curl", quiet=F)
+download.file("https://raw.githubusercontent.com/jbisanz/BMS270_2018/master/Tutorial_metadata.txt","Tutorial_metadata.txt", method="curl", quiet=F)
 #add downloads for the RDS folder
 dir.create("RDS")
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/denoised.RDS","RDS/denoised.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/derep.RDS","RDS/derep.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/error_profile.RDS","RDS/error_profile.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDSmetadata.RDS","RDS/metadata.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/sv.table.RDS","RDS/sv.table.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/sv.table.filtered.RDS","RDS/sv.table.filtered.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/sv.table.nochim.RDS","RDS/sv.table.nochim.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/taxonomy.RDS","RDS/taxonomy.RDS", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/RDS/tree.RDS","RDS/tree.RDS", method="curl", quiet=F)
 
 
 
