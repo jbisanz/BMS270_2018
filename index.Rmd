@@ -20,6 +20,7 @@ The tutorial will require some basic knowledge of the R language. At this point 
 <br>
 
 If you are not familiar with R, please watch these videos:
+
 *  [Introduction to R Programming with DataCamp](https://www.youtube.com/watch?v=HkNFn6eosaU)
 *  [Getting started with R and RStudio](https://www.youtube.com/watch?v=lVKMsaWju8w&t=3s)
 *  If you are interested in learning more R, I recommend [this book](https://www.amazon.com/Learning-Step-Step-Function-Analysis/dp/1449357105).
