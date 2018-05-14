@@ -16,7 +16,7 @@ if(!require(phangorn)){biocLite("phangorn")}
 if(!require(ggtree)){biocLite("ggtree")}
 if(!require(DESeq2)){biocLite("DESeq2")}
 if(!require(dada2)){biocLite("dada2")}
-if(!require(dada2)){biocLite("philr")}
+if(!require(philr)){biocLite("philr")}
 if(!require(picante)){biocLite("picante")}
 if(!require(ape)){biocLite("ape")}
 

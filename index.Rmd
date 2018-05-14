@@ -39,8 +39,6 @@ If you do not already have R, download the correct version for your operating sy
 print(R.Version()$version.string)
 ```
 
-<b>If you are a mac user who has never used any form of bioinformatic tool or programming language on your computer, it may be a good idea to download the Xcode Developer tools from the Apple app store</b>
-=======
 <b>If you are a mac user who has never used any form of bioinformatic tool or programming language on your computer, it may be a good idea to download the Xcode Developer tools from the Apple app store if you do not already have it.</b>
 
 Open R studio and click File > New File > R script. Save this file in a folder of your choice as <i>YourName.MicrobiomeTutorial.R</i>.
@@ -102,14 +100,14 @@ print(sessionInfo())
 
 ***
 
-=======
+
 # 2. Metadata Import {#Metadata}
 
 ***
 
 ## Background:
 
-The key to a good study starts before the sequencing even begins. Metadata refers to the a list of your sample names and what they actually are. In its simplest form, it could simply be disease X versus healthy control. In an ideal world, it is full of as many relevant covariates as possible. Before starting the DNA extractions, I highly recommend putting together the metadata to ensure you have sufficient information for meaningful analysis. Here we have provided a text file called "Tutorial_metadata.txt" which is in tab separated variable format (TSV). These files can be opened and edited in excel or Google sheets, and along with comma separated variable format (CSV), are among most common ways to store metadata. To get you started, try applying the following code to import and view the associated metadata:
+The key to a good study starts before the sequencing even begins. Metadata refers to the a list of your sample names and what they actually are. In its simplest form, it could simply be disease X versus healthy control. In an ideal world, it is full of as many relevant covariates as possible. Before starting the DNA extractions, I highly recommend putting together the metadata to ensure you have sufficient information for meaningful analysis. Here we have provided a text file called "Tutorial_metadata.txt" which is in tab separated variable format (TSV). These files can be opened and edited in excel or Google sheets, and along with comma separated variable format (CSV), are among most common ways to store metadata. To get you started, try applying the following code to import and view the associated metadata. If for some reason you are missing the metadata get it [here](https://raw.githubusercontent.com/jbisanz/BMS270_2018/master/Tutorial_metadata.txt).
 
 ```{r}
 metadata<-read.table("Tutorial_metadata.txt",
@@ -169,6 +167,8 @@ for (i in 1:nrow(metadata)){
 
   To carry out these steps, I recommend inspecting the following dada2 tutorial:  [http://benjjneb.github.io/dada2/tutorial.html](http://benjjneb.github.io/dada2/tutorial.html). Many of the steps we will apply have been copied verbatim from this tutorial. <b>Note: We have single ended 1x150 sequencing so overlapping is not necessary and certain filtering steps only require the passing of one variable rather than two.</b>
 
+If for some reason you could not download the reads from the ENA you can download them [here](https://github.com/jbisanz/BMS270_2018/raw/master/Rawdata.tar.gz).
+
   To help understand the denoising approach, you should look at the format of our raw data. Take a look at the first lines of a FASTQ file:
 
 ```{r}
@@ -186,7 +186,6 @@ FASTQ files typically are a repeating pattern of 4 lines:
 * [FASTQ files and quality scores](https://www.illumina.com/science/education/sequencing-quality-scores.html)
 * [How Illumina Sequencers work](https://www.illumina.com/content/dam/illumina-marketing/documents/products/illumina_sequencing_introduction.pdf)
 * [QIIME2](https://qiime2.org/)
-* [QIIME](https://qiime.org/) - The conventional approach for 16S rRNA gene Sequencing
 * [Mothur](mothur.org)
 
 ### Resources:
@@ -231,6 +230,8 @@ filtered<-filterAndTrim(fwd=FASTQs, #The list of fastqs that we currently have
                         )
 ```
 
+If you were unable to filter the reads on your own computer, you can download the filtered reads [here](https://github.com/jbisanz/BMS270_2018/raw/master/FilteredData.tar.gz).
+
 It would be a good idea to look at how many reads were lost during filtering.
 ```{r}
 print(paste("We removed a total of", sum(filtered[,1])-sum(filtered[,2]), "from", sum(filtered[,1]), "reads"))
@@ -239,13 +240,9 @@ print(paste("We removed a total of", sum(filtered[,1])-sum(filtered[,2]), "from"
 This seems to be an acceptable loss. Now we need to do the most computationally intensive part of the process which is learning the error rates. I highly recommend enabling multithreading if possible.
 
 ```{r}
-if(!file.exists("RDS/error_profile.RDS")){
-  error_profile<-learnErrors(filt.FASTQs, multithread=TRUE)
-  saveRDS(error_profile, "RDS/error_profile.RDS")
-} else {
-    print("Error profiles loaded from file")
-    error_profile<-readRDS("RDS/error_profile.RDS")
-}
+error_profile<-learnErrors(filt.FASTQs, multithread=TRUE)
+saveRDS(error_profile, "RDS/error_profile.RDS")
+#error_profile<-readRDS("RDS/error_profile.RDS") #to load from file
 ```
 
 
@@ -257,6 +254,7 @@ Now dereplicate your sequences which will help speed things up later during deno
 derep<-derepFastq(filt.FASTQs, verbose=FALSE) #dereplicate sequences
 names(derep) <- metadata$sample_name #name the dereplicated sequences by sample of origin
 saveRDS(derep, "RDS/derep.RDS")
+#derep<-readRDS("RDS/derep.RDS") #to load from file
 ```
 
 Now you can generate your denoised reads. Apply the `dada( )` function to denoise.
@@ -264,6 +262,7 @@ Now you can generate your denoised reads. Apply the `dada( )` function to denois
 ```{r}
 denoised<-dada(derep, err=error_profile, multithread = TRUE) #denoise sequences, again on windows you may need to set multithread=FALSE
 saveRDS(denoised, "RDS/denoised.RDS")
+#denoised<-readRDS("RDS/denoised.RDS") #to load from file
 ```
 
 Finally make your table of sequence variants (SVs) and check the dimensions to ensure it seems plausible:
@@ -271,6 +270,7 @@ Finally make your table of sequence variants (SVs) and check the dimensions to e
 sv.table<-makeSequenceTable(denoised) #make your feature table
 print(paste("There are", ncol(sv.table),"SVs in", nrow(sv.table), "Samples"))
 saveRDS(sv.table, "RDS/sv.table.RDS")
+#sv.table<-readRDS("RDS/sv.table.RDS") # to load from file
 ```
 
 
@@ -279,6 +279,10 @@ At this point, it would be wise to address sequence chimeras. For a discussion o
 ```{r}
 sv.table.nochim <- removeBimeraDenovo(sv.table, method="pooled", multithread=TRUE, verbose=TRUE) #remove chimeras, again you may need to specify multithread=FALSE on some windows systems
 saveRDS(sv.table.nochim, "RDS/sv.table.nochim.RDS")
+#sv.table.nochim<-readRDS("RDS/sv.table.nochim.RDS") # to load from file
+```
+
+```{r}
 print(paste("After chimera removal, there are", ncol(sv.table.nochim),"SVs in", nrow(sv.table.nochim), "Samples"))
 print(paste("Chimeric sequences represented", round(100*(1-sum(sv.table.nochim)/sum(sv.table)),2), "% of sequences"))
 ```
@@ -305,12 +309,13 @@ taxonomy$SV_ID<-paste0("SV_", seq(from=1, to=nrow(taxonomy), by=1)) # generate a
 colnames(sv.table.filtered)<-taxonomy[colnames(sv.table.filtered),]$SV_ID #Our table of SVs currently has sequences for names, switch it to the unique ID you created above
 rownames(taxonomy)<-taxonomy$SV_ID
 saveRDS(taxonomy, "RDS/taxonomy.RDS")
+#taxonomy<-readRDS("RDS/taxonomy.RDS") #to load from file
 ```
 
-<br> One last step before we do analysis. Generate a phylogenetic tree. We will use [this](https://f1000research.com/articles/5-1492/v2) workflow to carry it out completely in R. If you were on a unix computer with QIIME installed you could also use MicrobeR's Make.Tree command. The code below would generate a new tree, however this can take some time to run so instead we will use a precomputed tree which was downloaded as part of the tutorial data. Again, if it is missing, this code will regenerate it. This method of building a tree is extremely slow, and if you were dealing with >500 features, the [Fast Tree](http://www.microbesonline.org/fasttree/) algorithm would be supperior; however, it is not native to R.
+<br> One last step before we do analysis. Generate a phylogenetic tree. We will use [this](https://f1000research.com/articles/5-1492/v2) workflow to carry it out completely in R. If you were on a unix computer with QIIME installed you could also use MicrobeR's Make.Tree command. The code below would generate a new tree, however this can take some time to run so instead we will use a precomputed tree which was downloaded as part of the tutorial data. Again, if it is missing, this code will regenerate it. This method of building a tree is extremely slow, and if you were dealing with >500 features, the [Fast Tree](http://www.microbesonline.org/fasttree/) algorithm would be supperior; however, it is not native to R and installation on PCs may be difficult/impossible.
 
 ```{r, message=F}
-if(file.exists("RDS/tree.RDS")) {
+if(file.exists("RDS/tree.RDS")) { #if the file exists, load from file, else build new
     tree<-readRDS("RDS/tree.RDS")
 } else{
 seqs <- taxonomy$Seq
@@ -504,7 +509,7 @@ To test this statistically, two commonly applied tests are ANOSIM and ADONIS. To
 
 ```{r, message=F}
 sv.subsampled<-Subsample.Table(sv.table.analysis) #normalize for sequencing depth
-unweighted<-UniFrac(phyloseq(otu_table(sv.subsampled, taxa_are_rows = T), tree), weighted=F)#Generate a distance matrix, consider taking a look at this
+unweighted<-UniFrac(phyloseq(otu_table(sv.subsampled, taxa_are_rows = T), tree), weighted=F)
 ```
 
 Let us look at the part of the table to get a feel for what the distance matrix looks like.
