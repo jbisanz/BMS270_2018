@@ -20,7 +20,7 @@ if(!require(dada2)){biocLite("philr")}
 if(!require(picante)){biocLite("picante")}
 if(!require(ape)){biocLite("ape")}
 
-require(devtools)
+
 devtools::install_github("jbisanz/MicrobeR") #always resinstall this as it is in development phase
 
 if(.Platform$OS.type=="unix"){
