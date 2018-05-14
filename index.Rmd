@@ -61,7 +61,7 @@ Next run the following code which will download all required packages for this t
 source("https://raw.githubusercontent.com/jbisanz/BMS270_2018/master/InstallTutorial.R")
 ```
 
-In OSX and Ubuntu ensure that the folders RawData and RDS (downloaded by the above script) are in the same directory as <i>YourName.MicrobiomeTutorial.R</i>. <b>If you are running windows, the sequencing data was not automatically downloaded. Please manually download from this [link](https://github.com/jbisanz/BMS270_BMI219/raw/master/tutorialdata.zip), and decompress in the same directory as <i>YourName.MicrobiomeTutorial.R</i></b>
+In additional please manually download from this [link](https://github.com/jbisanz/BMS270_2018/raw/master/TutorialData.tar.gz), and decompress in the same directory as <i>YourName.MicrobiomeTutorial.R</i></b>
 
 ***
 
