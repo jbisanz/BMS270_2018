@@ -39,11 +39,9 @@ If you do not already have R, download the correct version for your operating sy
 print(R.Version()$version.string)
 ```
 
-<<<<<<< Updated upstream
 <b>If you are a mac user who has never used any form of bioinformatic tool or programming language on your computer, it may be a good idea to download the Xcode Developer tools from the Apple app store</b>
 =======
 <b>If you are a mac user who has never used any form of bioinformatic tool or programming language on your computer, it may be a good idea to download the Xcode Developer tools from the Apple app store if you do not already have it.</b>
->>>>>>> Stashed changes
 
 Open R studio and click File > New File > R script. Save this file in a folder of your choice as <i>YourName.MicrobiomeTutorial.R</i>.
 
@@ -104,7 +102,6 @@ print(sessionInfo())
 
 ***
 
-<<<<<<< Updated upstream
 =======
 # 2. Metadata Import {#Metadata}
 
@@ -663,4 +660,3 @@ What do you think this says about organisms that shift during pregnancy? Does th
 You have now completed a fairly comprehensive analysis of a microbiome data set. You started with raw data like you would get direct from a sequencer or read repository. These steps are fairly generalizable to multiple study types. If you think 16S rRNA gene analysis is something you will do often, you should experiment with other approaches and see if you converge on the same conclusions: [QIIME](http://qiime.org), [QIIME2](http://qiime2.org), [UPARSE](http://www.drive5.com/usearch/manual/uparse_pipeline.html), [Mothur](http://mothur.org).
 <br><br>
 If you would like feedback on your code, please email to [jordan.bisanz@ucsf.edu](mailto:jordan.bisanz@ucsf.edu).
->>>>>>> Stashed changes
