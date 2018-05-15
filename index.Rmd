@@ -59,9 +59,10 @@ Next run the following code which will download all required packages for this t
 
 ```{r, eval=F}
 source("https://raw.githubusercontent.com/jbisanz/BMS270_2018/master/InstallTutorial.R")
+untar("TutorialData.tar.gz")
 ```
 
-In additional please manually download from this [link](https://github.com/jbisanz/BMS270_2018/raw/master/TutorialData.tar.gz), and decompress in the same directory as <i>YourName.MicrobiomeTutorial.R</i></b>
+<b>If you are using windows, please download from this [link](https://github.com/jbisanz/BMS270_2018/raw/master/TutorialData.tar.gz), and decompress in the same directory as <i>YourName.MicrobiomeTutorial.R</i></b>
 
 ***
 
@@ -110,7 +111,7 @@ print(sessionInfo())
 The key to a good study starts before the sequencing even begins. Metadata refers to the a list of your sample names and what they actually are. In its simplest form, it could simply be disease X versus healthy control. In an ideal world, it is full of as many relevant covariates as possible. Before starting the DNA extractions, I highly recommend putting together the metadata to ensure you have sufficient information for meaningful analysis. Here we have provided a text file called "Tutorial_metadata.txt" which is in tab separated variable format (TSV). These files can be opened and edited in excel or Google sheets, and along with comma separated variable format (CSV), are among most common ways to store metadata. To get you started, try applying the following code to import and view the associated metadata. If for some reason you are missing the metadata get it [here](https://raw.githubusercontent.com/jbisanz/BMS270_2018/master/Tutorial_metadata.txt).
 
 ```{r}
-metadata<-read.table("Tutorial_metadata.txt",
+metadata<-read.table("TutorialData/Tutorial_metadata.txt",
                      sep ='\t', # our table is a TSV file with tabs between every column
                      header = TRUE, #the first row of our metadata contains the variable names
                      stringsAsFactors = FALSE #This has to do with how R treats text, for now it will be easiest to not treat text as a factor
@@ -172,7 +173,7 @@ If for some reason you could not download the reads from the ENA you can downloa
   To help understand the denoising approach, you should look at the format of our raw data. Take a look at the first lines of a FASTQ file:
 
 ```{r}
-readLines("RawData/2024.birth.MNIH02UP.BFF10F.V.fastq.gz", n=4) #read top 4 lines of file and print to screen
+readLines("TutorialData/RawData/2024.birth.MNIH02UP.BFF10F.V.fastq.gz", n=4) #read top 4 lines of file and print to screen
 ```
 
 FASTQ files typically are a repeating pattern of 4 lines: 
@@ -198,7 +199,7 @@ FASTQ files typically are a repeating pattern of 4 lines:
 
 Start by examining the quality of a few random samples with x as cycle number and y as Quality score. What do you think of the quality?
 ```{r}
-FASTQs<-paste0("RawData/", list.files("RawData")) # generate a list of file names
+FASTQs<-paste0("TutorialData/RawData/", list.files("TutorialData/RawData")) # generate a list of file names
 plotQualityProfile(FASTQs[c(1,10,20)]) #plot 3 arbitrarily selected samples
 ```
 <i> Remember that sequencing quality almost always decreases as the number of cycles increases</i>.
@@ -242,7 +243,7 @@ This seems to be an acceptable loss. Now we need to do the most computationally 
 ```{r}
 error_profile<-learnErrors(filt.FASTQs, multithread=TRUE)
 saveRDS(error_profile, "RDS/error_profile.RDS")
-#error_profile<-readRDS("RDS/error_profile.RDS") #to load from file
+#error_profile<-readRDS("TutorialData/RDS/error_profile.RDS") #to load from file
 ```
 
 
@@ -254,7 +255,7 @@ Now dereplicate your sequences which will help speed things up later during deno
 derep<-derepFastq(filt.FASTQs, verbose=FALSE) #dereplicate sequences
 names(derep) <- metadata$sample_name #name the dereplicated sequences by sample of origin
 saveRDS(derep, "RDS/derep.RDS")
-#derep<-readRDS("RDS/derep.RDS") #to load from file
+#derep<-readRDS("TutorialData/RDS/derep.RDS") #to load from file
 ```
 
 Now you can generate your denoised reads. Apply the `dada( )` function to denoise.
@@ -262,7 +263,7 @@ Now you can generate your denoised reads. Apply the `dada( )` function to denois
 ```{r}
 denoised<-dada(derep, err=error_profile, multithread = TRUE) #denoise sequences, again on windows you may need to set multithread=FALSE
 saveRDS(denoised, "RDS/denoised.RDS")
-#denoised<-readRDS("RDS/denoised.RDS") #to load from file
+#denoised<-readRDS("TutorialData/RDS/denoised.RDS") #to load from file
 ```
 
 Finally make your table of sequence variants (SVs) and check the dimensions to ensure it seems plausible:
@@ -270,7 +271,7 @@ Finally make your table of sequence variants (SVs) and check the dimensions to e
 sv.table<-makeSequenceTable(denoised) #make your feature table
 print(paste("There are", ncol(sv.table),"SVs in", nrow(sv.table), "Samples"))
 saveRDS(sv.table, "RDS/sv.table.RDS")
-#sv.table<-readRDS("RDS/sv.table.RDS") # to load from file
+#sv.table<-readRDS("TutorialData/RDS/sv.table.RDS") # to load from file
 ```
 
 
@@ -279,7 +280,7 @@ At this point, it would be wise to address sequence chimeras. For a discussion o
 ```{r}
 sv.table.nochim <- removeBimeraDenovo(sv.table, method="pooled", multithread=TRUE, verbose=TRUE) #remove chimeras, again you may need to specify multithread=FALSE on some windows systems
 saveRDS(sv.table.nochim, "RDS/sv.table.nochim.RDS")
-#sv.table.nochim<-readRDS("RDS/sv.table.nochim.RDS") # to load from file
+#sv.table.nochim<-readRDS("TutorialData/RDS/sv.table.nochim.RDS") # to load from file
 ```
 
 ```{r}
@@ -298,7 +299,7 @@ saveRDS(sv.table.filtered, "RDS/sv.table.filtered.RDS")
 Now we have a table of sequences and samples. But the sequences aren't particularly helpful to us. What we really want to know is what organisms those sequences belong to. There are multiple choices of database for this tool. For the purposes of today, we will use the [Ribosomal Database Project](https://rdp.cme.msu.edu/). Typically the [Green Genes](http://greengenes.secondgenome.com/downloads) or [SILVA](https://www.arb-silva.de/documentation/release-123/) databases are more commonly used but we are using the RDP database to save on computational time. I personally use SILVA. Use the <i>assignTaxonomy()</i> function of dada2 with the rdp_train_set_14.fa.gz that you downloaded as part of your installation.
 
 ```{r}
-taxonomy <- as.data.frame(assignTaxonomy(sv.table.filtered, "rdp_train_set_14.fa.gz", multithread=TRUE, verbose=TRUE)) #assign taxonomy
+taxonomy <- as.data.frame(assignTaxonomy(sv.table.filtered, "TutorialData/rdp_train_set_14.fa.gz", multithread=TRUE, verbose=TRUE)) #assign taxonomy
 ```
 
 To make visualizing the data easier, we can assign a unique ID to each of our sequence variants. I will create a new category in the taxonomy table called Seq that contains the SV sequence and  also a category for the unique ID.
@@ -309,14 +310,14 @@ taxonomy$SV_ID<-paste0("SV_", seq(from=1, to=nrow(taxonomy), by=1)) # generate a
 colnames(sv.table.filtered)<-taxonomy[colnames(sv.table.filtered),]$SV_ID #Our table of SVs currently has sequences for names, switch it to the unique ID you created above
 rownames(taxonomy)<-taxonomy$SV_ID
 saveRDS(taxonomy, "RDS/taxonomy.RDS")
-#taxonomy<-readRDS("RDS/taxonomy.RDS") #to load from file
+#taxonomy<-readRDS("TutorialData/RDS/taxonomy.RDS") #to load from file
 ```
 
 <br> One last step before we do analysis. Generate a phylogenetic tree. We will use [this](https://f1000research.com/articles/5-1492/v2) workflow to carry it out completely in R. If you were on a unix computer with QIIME installed you could also use MicrobeR's Make.Tree command. The code below would generate a new tree, however this can take some time to run so instead we will use a precomputed tree which was downloaded as part of the tutorial data. Again, if it is missing, this code will regenerate it. This method of building a tree is extremely slow, and if you were dealing with >500 features, the [Fast Tree](http://www.microbesonline.org/fasttree/) algorithm would be supperior; however, it is not native to R and installation on PCs may be difficult/impossible.
 
 ```{r, message=F}
-if(file.exists("RDS/tree.RDS")) { #if the file exists, load from file, else build new
-    tree<-readRDS("RDS/tree.RDS")
+if(file.exists("TutorialData/RDS/tree.RDS")) { #if the file exists, load from file, else build new
+    tree<-readRDS("TutorialData/RDS/tree.RDS")
 } else{
 seqs <- taxonomy$Seq
 names(seqs) <- taxonomy$SV_ID # This propagates to the tip labels of the tree
@@ -509,19 +510,19 @@ To test this statistically, two commonly applied tests are ANOSIM and ADONIS. To
 
 ```{r, message=F}
 sv.subsampled<-Subsample.Table(sv.table.analysis) #normalize for sequencing depth
-unweighted<-UniFrac(phyloseq(otu_table(sv.subsampled, taxa_are_rows = T), tree), weighted=F)
+weighted<-UniFrac(phyloseq(otu_table(sv.subsampled, taxa_are_rows = T), tree), weighted=T)
 ```
 
 Let us look at the part of the table to get a feel for what the distance matrix looks like.
 
 ```{r}
-Nice.Table(as.matrix(unweighted)[1:5,1:5])
+Nice.Table(as.matrix(weighted)[1:5,1:5])
 ```
 
 ####2- Now do test ADONIS test.
 
 ```{r}
-adonis(unweighted ~ anonymized_name + Timepoint, data=metadata, permutations = 9999)
+adonis(weighted ~ anonymized_name + Timepoint, data=metadata, permutations = 9999)
 ```
 
 Were the results significant? An important number to also consider is the R^2^ value which indicates the % variation explained. What explains more of the variation, time or person? What would you have expected?
@@ -529,7 +530,7 @@ Were the results significant? An important number to also consider is the R^2^ v
 But again, remember this is a longitudinal analysis, so we can account for repeated time by indicating a strata. Repeat the test using a strata.
 
 ```{r}
-adonis(unweighted~Timepoint, strata=metadata$anonymized_name, data=metadata) #include strata
+adonis(weighted~Timepoint, strata=metadata$anonymized_name, data=metadata) #include strata
 ```
 
 Did this change your result?
@@ -582,7 +583,7 @@ Now that you have calculated your results, you can get the data back in tabular 
 
 ```{r}
 results.deseq<-as.data.frame(results(dds))
-filt.results.deseq<-subset(results.deseq, padj<0.1 & (abs(log2FoldChange)>1)) # FDR<0.1 AND the absolute value of the fold change is >1
+filt.results.deseq<-subset(results.deseq, padj<0.1 & abs(log2FoldChange)>1) # FDR<0.1 AND the absolute value of the fold change is >1
 print(paste("There are", nrow(filt.results.deseq), "significantly different SVs"))
 Nice.Table(filt.results.deseq) #display features in a table
 ```
@@ -600,7 +601,7 @@ Again apply your filtering criteria again and look how this affected our number 
 
 ```{r}
 results.deseq<-as.data.frame(results(dds))
-filt.results.deseq<-subset(results.deseq, padj<0.1 & (log2FoldChange>1 | log2FoldChange<(-1)))
+filt.results.deseq<-subset(results.deseq, padj<0.1 & abs(log2FoldChange)>1) # FDR<0.1 AND the absolute value of the fold change is >1
 print(paste("There are", nrow(filt.results.deseq), "significantly different SVs"))
 Nice.Table(filt.results.deseq)
 ```
@@ -609,7 +610,7 @@ Here we have our results, but the actual sequence isn't very helpful. We could l
 
 ```{r}
 #we will only assign species to the sequences in the significant results
-species<-assignSpecies(taxonomy[rownames(filt.results.deseq),]$Seq, "rdp_species_assignment_14.fa.gz", allowMultiple = TRUE, verbose=TRUE)
+species<-assignSpecies(taxonomy[rownames(filt.results.deseq),]$Seq, "TutorialData/rdp_species_assignment_14.fa.gz", allowMultiple = TRUE, verbose=TRUE)
 species.results<-cbind(filt.results.deseq, species) #paste the new genus and species names onto the right of the deseq results
 Nice.Table(species.results)
 ```
@@ -623,6 +624,7 @@ It would be nice to help visualize these changes. One common way is a volcano pl
 results.deseq %>%
   left_join(species.results) %>% #add in the names of the significant species
   mutate(Significant=if_else(padj<0.1 & abs(log2FoldChange)>1, "Significant","Not Significant")) %>% #create a new category for if the result is signifcant or not
+  mutate(Significant=if_else(is.na(Significant), "Not Significant", "Significant")) %>% #catch NAs from when their was no FDR
   ggplot(aes(x=log2FoldChange, y=-log10(pvalue), color=Significant, label=Genus)) +
   geom_point(alpha=0.5) + #alpha here is the opacity which helps visualize overlapping points 
   theme_bw() +
