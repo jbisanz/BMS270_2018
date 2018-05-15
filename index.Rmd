@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r, include=F}
-knitr::opts_chunk$set(echo = TRUE, message=TRUE, warning=FALSE,  cache=FALSE, tidy=TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=TRUE, warning=FALSE,  cache=FALSE, tidy=FALSE)
 ```
 # Computational Methods for Exploring the Microbiome
 ***
@@ -530,7 +530,9 @@ Were the results significant? An important number to also consider is the R^2^ v
 But again, remember this is a longitudinal analysis, so we can account for repeated time by indicating a strata. Repeat the test using a strata.
 
 ```{r}
-adonis(weighted~Timepoint, strata=metadata$anonymized_name, data=metadata) #include strata
+adonis(weighted~Timepoint, 
+       strata=metadata[labels(weighted),]$anonymized_name, # give the id of the person, but make sure in same order as dist matrix 
+       data=metadata)
 ```
 
 Did this change your result?
@@ -623,9 +625,9 @@ It would be nice to help visualize these changes. One common way is a volcano pl
 ```{r}
 results.deseq %>%
   left_join(species.results) %>% #add in the names of the significant species
-  mutate(Significant=if_else(padj<0.1 & abs(log2FoldChange)>1, "Significant","Not Significant")) %>% #create a new category for if the result is signifcant or not
-  mutate(Significant=if_else(is.na(Significant), "Not Significant", "Significant")) %>% #catch NAs from when their was no FDR
-  ggplot(aes(x=log2FoldChange, y=-log10(pvalue), color=Significant, label=Genus)) +
+  mutate(Significance=if_else(padj<0.1 & abs(log2FoldChange)>1, "Significant","Not Significant")) %>% #create a new category for if the result is signifcant or not
+  mutate(Significance=if_else(is.na(Significance), "Not Significant", Significance)) %>% #catch NAs from when their was no FDR
+  ggplot(aes(x=log2FoldChange, y=-log10(pvalue), color=Significance, label=Genus)) +
   geom_point(alpha=0.5) + #alpha here is the opacity which helps visualize overlapping points 
   theme_bw() +
   scale_color_manual(values=c("grey50","red")) + #manually set the colors
