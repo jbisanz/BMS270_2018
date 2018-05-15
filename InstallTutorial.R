@@ -29,5 +29,5 @@ if(.Platform$OS.type=="unix"){
 download.file("https://zenodo.org/record/158955/files/rdp_train_set_14.fa.gz", "rdp_train_set_14.fa.gz", method="curl", quiet=F)
 download.file("https://zenodo.org/record/158955/files/rdp_species_assignment_14.fa.gz", "rdp_species_assignment_14.fa.gz", method="curl", quiet=F)
 download.file("https://raw.githubusercontent.com/jbisanz/BMS270_2018/master/Tutorial_metadata.txt","Tutorial_metadata.txt", method="curl", quiet=F)
-download.file("https://github.com/jbisanz/BMS270_2018/raw/master/TutorialData.tar.gz", "TutorialData.tar.gz", method="curl", quiet=F)
+download.file("https://github.com/jbisanz/BMS270_2018/raw/master/TutorialData.tar.gz", "TutorialData.tar.gz", quiet=F)
 }
